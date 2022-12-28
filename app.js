@@ -4,7 +4,15 @@ const app = express()
 require('dotenv').config()
 
 const mongoose = require('mongoose')
-mongoose.connect(process.env.DATABASE_URL, { useNewURLParser: true })
+async function connectDB() {
+    try {
+        await mongoose.connect(process.env.DATABASE_URL, { useNewURLParser: true })
+    } catch(err) {
+        console.log(err)
+    }
+    
+}
+
 
 var cors = require('cors');
 app.use(cors({origin: 'http://localhost:3000', credentials: true}))
@@ -285,5 +293,6 @@ app.use('/js', express.static(__dirname + 'public/js'))
 app.use('/img', express.static(__dirname + 'public/img'))
 
 
-
-app.listen(4000)
+connectDB().then(() => {
+    app.listen(3000)
+})
