@@ -1,0 +1,47 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+ul {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+ul li {
+    list-style: none;
+}
+
+body {
+
+}
+
+header {
+    color: white;
+    background-color: rgb(72, 197, 105);
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: .5rem 1rem;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav li {
+    padding: .3rem;
+    margin: .3rem;
+}
+
+p {
+    color: red;
+}
