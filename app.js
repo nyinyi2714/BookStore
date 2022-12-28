@@ -15,7 +15,7 @@ async function connectDB() {
 
 
 var cors = require('cors');
-app.use(cors({origin: 'https://bookstore.cyclic.app', credentials: true}))
+app.use(cors({origin: 'https://bookstore.cyclic.app/', credentials: true}))
 
 const fs = require("fs")
 
