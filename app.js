@@ -48,9 +48,11 @@ const bcrypt = require('bcrypt')
 
 app.use(session( {
     secret: process.env.SESSION_SECRET,		
-    resave: false,
-    sameSite: "none",  
+    resave: false, 
     saveUninitialized: true, 
+    cookie: {
+        sameSite: 'none'
+    }
 } ))
 app.use(cookieParser(process.env.SESSION_SECRET))
 app.use(passport.initialize())
