@@ -48,7 +48,8 @@ const bcrypt = require('bcrypt')
 
 app.use(session( {
     secret: process.env.SESSION_SECRET,		
-    resave: false,  
+    resave: false,
+    sameSite: "none",  
     saveUninitialized: true, 
 } ))
 app.use(cookieParser(process.env.SESSION_SECRET))
