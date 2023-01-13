@@ -51,8 +51,9 @@ app.use(session( {
     resave: false, 
     saveUninitialized: true, 
     cookie: {
-        secure: true,
-        sameSite: 'none'
+        secure: false,
+        sameSite: 'none',
+        keys: [process.env.SESSION_SECRET]
     }
 } ))
 app.use(cookieParser(process.env.SESSION_SECRET))
