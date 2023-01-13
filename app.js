@@ -13,15 +13,8 @@ async function connectDB() {
 }
 
 
-// const cors = require('cors')
-// app.use(cors({origin: "https://bookstore-react-self.vercel.app", credentials: true}))
-
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "https://bookstore-react-self.vercel.app")
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-    res.header("Access-Control-Allow-Credentials", true)
-    next()
- })
+const cors = require('cors')
+app.use(cors({origin: "https://bookstore-react-self.vercel.app", credentials: true}))
 
 const fs = require("fs")
 
