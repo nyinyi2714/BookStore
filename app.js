@@ -40,26 +40,13 @@ const upload = multer({
 
 
 // Authentication with passport.js
-const passport = require('passport')
-const session = require('express-session')
+const jwt = require("jsonwebtoken")
 const cookieParser = require('cookie-parser')
 const bcrypt = require('bcrypt')
+const auth = require("./auth")
 
-
-app.use(session( {
-    secret: process.env.SESSION_SECRET,		
-    resave: false, 
-    saveUninitialized: true, 
-    cookie: {
-        secure: false,
-        sameSite: 'none',
-        keys: [process.env.SESSION_SECRET]
-    }
-} ))
 app.use(cookieParser(process.env.SESSION_SECRET))
-app.use(passport.initialize())
-app.use(passport.session())
-require('./passport-config')
+app.use(auth)
 
 // Mongodb DataBase
 const User = require('./model/User')
@@ -97,27 +84,46 @@ app.post('/signup', async (req, res) => {
 })
 
 // Sign In User
-app.post('/signin', (req, res, next) => {
-    passport.authenticate('local', (err, user, info) => {
+app.post('/signin', async (req, res) => {
+    try {
+        // Get user input
+        const { email, password } = req.body;
+    
+        // Validate if user exist in our database
+        const user = await User.findOne({ email });
+    
+        if (user && (await bcrypt.compare(password, user.password))) {
 
-      if (err) console.log(err)
-      // if it fails
-      if (!user) return res.status(401).json({err: 'failed'})
-      
-      req.logIn(user, err => {
-        if (err) console.log(err)
-        // if it succeeds
-        res.status(200).json({text: 'success'})
-      })
-      
-    })(req, res, next)
+          // Create token
+          const token = jwt.sign(
+            { user: user },
+            process.env.TOKEN_KEY,
+            {
+              expiresIn: "2h",
+            }
+          );
+    
+          res.cookie("token", token, {
+            secure: false,
+            httpOnly: true,
+          })
+
+          res.json({message: "Sign in successfully"})
+
+        } else {
+            res.status(400).json({err: "Invalid Credentials"})
+        }
+
+      } catch (err) {
+        console.log(err)
+      }
 
 })
 
 //Log out User
 app.get('/logout', (req, res) => {
     if(req.user) {
-        req.logout((err) => { if(err) console.log(err) })
+        res.clearCookie("token")
         res.json({message: "signed out successfully"})
     } else {
         res.json({err: "No user found to log out"})
@@ -190,8 +196,10 @@ app.post("/delete_book", async (req, res) => {
 // Send current user's cart data in json
 app.get('/cart/json', async (req, res) => {
     if(!req.user) return res.json({err: "Need to sign in to view cart"})
-    let currentUser = await User.findOne({_id: req.user.id})
-    res.status(200).json(currentUser.cart)
+    let user = await User.findOne({
+        _id: req.user._id,
+    })
+    res.status(200).json(user.cart)
 })
 
 // Add new items into current user's cart
@@ -215,9 +223,12 @@ app.post('/cart/remove', async (req, res) => {
 
     // Find the book to delete in current User's cart
     let indexToDel = null
-    currentUser.cart.forEach((book, index) => {
-        if((book._id + "") == req.body.id) return indexToDel = index
-    })
+    for(let i = 0; i < currentUser.cart.length; i++) {
+        if(currentUser.cart[i]._id.toString() === req.body.id) {
+            indexToDel = i
+            break
+        }
+    }
 
     // If can't find the book in the cart 
     if(indexToDel == null) return res.json({err: "Can't find the book in the cart"})
