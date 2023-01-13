@@ -14,7 +14,7 @@ async function connectDB() {
 
 
 var cors = require('cors');
-app.use(cors({origin: true, credentials: true}))
+app.use(cors({origin: "https://bookstore-react-self.vercel.app", credentials: true}))
 
 const fs = require("fs")
 
@@ -104,8 +104,9 @@ app.post('/signin', async (req, res) => {
           );
     
           res.cookie("token", token, {
-            secure: false,
+            secure: true,
             httpOnly: true,
+            sameSite: "none"
           })
 
           res.json({message: "Sign in successfully"})
